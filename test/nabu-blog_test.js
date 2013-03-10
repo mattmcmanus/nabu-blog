@@ -48,7 +48,7 @@ exports['nabu'] = {
     
     nabu.md = function(string) { test.ok(string, "A string of markdown to parse"); return "Markdowned!"; };
 
-    nabu_blog.parse(nabu, function(err, nabu){
+    nabu_blog(nabu, function(err, nabu){
       test.ok(nabu.site.posts, "There shold be a nabu posts object");
       test.equal(nabu.site.posts.length, 2, "There shold be a nabu posts object");
       test.equal(nabu.site.posts[0].content, "Markdowned!", "The markdown was parsed");

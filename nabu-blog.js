@@ -33,17 +33,17 @@ var parseFile = function(post, callback){
   callback(null, post);
 };
 
-exports.parse = function(nabu, callback) {
+function parse(nabu, callback) {
   var posts = nabu.files.findInFolder(nabu._files, contentFolder);
 
-  this.steps = function(post, callback){
+  async.map(posts, function (post, callback){
     nabu.parse(post, function(err, post){
       parseFile(post, callback);
     });
-  };
-
-  async.map(posts, this.steps, function(err, results){
+  }, function(err, results){
     nabu.site.posts = results.reverse();
     callback(err, nabu);
   });
-};
+}
+
+exports = module.exports = parse;
