@@ -19,37 +19,26 @@ var path = require('path'),
 var contentFolder = '_posts';
 
 /**
- * process and individual file
+ * parse and individual file
  * @param  {string}   sourcePath path to source
  * @param  {Function} callback  
  */
-var processFile = function(post, callback){
-  if (post.date) {
-    post.date = moment(post.date);
-  }
-
+var parseFile = function(post, callback){
+  post.date = moment(post.date);
   post.slug = _.slugify(post.title);
+  
   //TODO: Actually obey permalink setting
   post.permalink = post.slug + '/';
   
   callback(null, post);
 };
 
-exports.processFiles = function(nabu, callback) {
-  var posts = nabu.utils.findFilesInFolder(nabu.files, contentFolder);
+exports.parse = function(nabu, callback) {
+  var posts = nabu.files.findInFolder(nabu._files, contentFolder);
 
-  // Update file list
-  nabu.files = nabu.utils.removePaths(nabu.files, posts);
-  
-  // Steps to go through to process the file
   this.steps = function(post, callback){
-    async.waterfall([
-      function(callback) { nabu.processFile(post, callback); },
-      function(file, callback) { nabu.processMarkdownFile(file, callback); },
-      function(file, callback) { processFile(file, callback); }
-    ], 
-    function(err, results) {
-      callback(err, results);
+    nabu.parse(post, function(err, post){
+      parseFile(post, callback);
     });
   };
 
