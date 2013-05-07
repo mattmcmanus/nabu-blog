@@ -16,34 +16,33 @@ var path = require('path'),
     _.str = require('underscore.string');
     _.mixin(_.str.exports());
 
-var contentFolder = '_posts';
+exports = module.exports = parse;
 
 /**
  * parse and individual file
  * @param  {string}   sourcePath path to source
  * @param  {Function} callback  
  */
-var parseFile = function(post, callback){
+var parseFile = function(post, nabu, callback){
   post.date = moment(post.date);
-  post.slug = _.slugify(post.title);
+  post.year = post.date.year();
+  post.month = post.date.month()+1;
+  post.day = post.date.date();
   
-  //TODO: Actually obey permalink setting
-  post.permalink = post.slug + '/';
+  //post.permalink = nabu.permalink(post);
   
   callback(null, post);
 };
 
 function parse(nabu, callback) {
-  var posts = nabu.files.findInFolder(nabu._files, contentFolder);
+  var posts = nabu.files.findInFolder(nabu._files, '_posts');
 
   async.map(posts, function (post, callback){
     nabu.parse(post, function(err, post){
-      parseFile(post, callback);
+      parseFile(post, nabu, callback);
     });
   }, function(err, results){
     nabu.site.posts = results.reverse();
     callback(err, nabu);
   });
 }
-
-exports = module.exports = parse;

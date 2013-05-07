@@ -1,7 +1,5 @@
 'use strict';
 
-var nabu_blog = require('../nabu-blog.js');
-
 /*
   ======== A Handy Little Nodeunit Reference ========
   https://github.com/caolan/nodeunit
@@ -22,38 +20,37 @@ var nabu_blog = require('../nabu-blog.js');
     test.ifError(value)
 */
 
-console.log(process.cwd());
+//IMPORTANT! Change directories to the fixtures dir
+process.chdir('./test/fixtures');
 
-var nabu = require('../../nabu/lib/nabu');
+var nabu_blog = require('../nabu-blog.js');
 
-
-nabu._files = [ './index.html.jade',
-    './sample.md',
-    './styles.css',
-    './_layouts/default.jade',
-    './_layouts/post.jade',
-    './test/fixtures/_posts/2012-12-1-sample1.md',
-    './test/fixtures/_posts/2013-01-12-sample2.md',
-    './images/anchor-porter.jpg' ];
-  
-nabu.site.renderer = 'jade';
-nabu.site.layouts = { post: './_layouts/post.jade' };
+var nabu = require('../../nabu');
+var generator;
 
 exports['nabu'] = {
   setUp: function(done) {
+    generator = nabu();
+    generator._files = [ './index.html.jade',
+        './sample.md',
+        './styles.css',
+        './_layouts/default.jade',
+        './_layouts/post.jade',
+        './_posts/2012-12-1-sample1.md',
+        './_posts/2013-01-12-sample2.md',
+        './images/anchor-porter.jpg' ];
+    generator.site.layouts = { post: './_layouts/post.jade' };
     done();
   },
   'parse': function(test) {
     test.expect(5); // There should be two blog posts to test
     
-    nabu.md = function(string) { test.ok(string, "A string of markdown to parse"); return "Markdowned!"; };
+    generator.md = function(string) { test.ok(string, "A string of markdown to parse"); return "Markdowned!"; };
 
-    nabu_blog(nabu, function(err, nabu){
-      test.ok(nabu.site.posts, "There shold be a nabu posts object");
-      test.equal(nabu.site.posts.length, 2, "There shold be a nabu posts object");
-      test.equal(nabu.site.posts[0].content, "Markdowned!", "The markdown was parsed");
-
-      // test.ok((nabu.site.length > 0), "There shold be at least 1 page");
+    nabu_blog(generator, function(err, result){
+      test.ok(result.site.posts, "There shold be a nabu posts object");
+      test.equal(result.site.posts.length, 2, "There shold be a nabu posts object");
+      test.equal(result.site.posts[0].content, "Markdowned!", "The markdown was parsed");
       test.done();
     });
     
